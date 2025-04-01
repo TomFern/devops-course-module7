@@ -32,3 +32,8 @@ blocks:
             - terraform plan
             - terraform apply -auto-approve
             - 'aws --endpoint-url=http://localhost:4566 s3 ls'
+      env_vars:
+        - name: AWS_ACCESS_KEY_ID
+          value: test
+        - name: AWS_SECRET_ACCESS_KEY
+          value: test
