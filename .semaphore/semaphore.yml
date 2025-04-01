@@ -1,0 +1,32 @@
+version: v1.0
+name: Initial Pipeline
+agent:
+  machine:
+    type: f1-standard-2
+    os_image: ubuntu2204
+global_job_config:
+  prologue:
+    commands:
+      - checkout
+blocks:
+  - name: Init and validation
+    task:
+      jobs:
+        - name: Terraform init
+          commands:
+            - cd 3-terraform-outputs
+            - terraform init
+            - terraform validate
+            - artifact push project --force .terraform
+  - name: Plan and apply
+    task:
+      jobs:
+        - name: Terraform apply
+          commands:
+            - cd 3-terraform-outputs
+            - artifact pull project .terraform
+            - 'docker run -d -p 4566:4566 -p 4571:4571 --name localstack_container localstack/localstack'
+            - wait-localstack
+            - terraform plan
+            - terraform apply -auto-approve
+            - 'aws --endpoint-url=http://localhost:4566 s3 ls'
