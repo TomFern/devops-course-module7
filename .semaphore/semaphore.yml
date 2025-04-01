@@ -1,0 +1,39 @@
+version: v1.0
+name: Initial Pipeline
+agent:
+  machine:
+    type: f1-standard-2
+    os_image: ubuntu2204
+global_job_config:
+  prologue:
+    commands:
+      - checkout
+blocks:
+  - name: Init and validation
+    task:
+      jobs:
+        - name: Terraform init
+          commands:
+            - cd 3-terraform-outputs
+            - terraform init
+            - terraform validate
+            - artifact push project --force .terraform
+  - name: Plan and apply
+    task:
+      jobs:
+        - name: Terraform apply
+          commands:
+            - cd 3-terraform-outputs
+            - artifact pull project .terraform
+            - terraform init
+            - 'wget https://github.com/localstack/localstack-cli/releases/download/v4.3.0/localstack-cli-4.3.0-linux-amd64.tar.gz'
+            - tar xvzf localstack-cli-4.3.0-linux-amd64.tar.gz
+            - localstack/localstack  start -d
+            - terraform plan
+            - terraform apply -auto-approve
+            - 'aws --endpoint-url=http://localhost:4566 s3 ls'
+      env_vars:
+        - name: AWS_ACCESS_KEY_ID
+          value: test
+        - name: AWS_SECRET_ACCESS_KEY
+          value: test
