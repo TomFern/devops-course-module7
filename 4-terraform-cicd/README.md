@@ -7,7 +7,7 @@
 1. Create a pipeline with two blocks:
 
 - Block one validates and initializes Terraform
-- Block two runs localstack and applies the Terraform plan
+- Block two runs localstack and applies the Terraform plan. In block two, override the agent to use s1-ubuntu instead of the default.
 - Use the terraform files located in this directory
 
 2. Use the following commands in order to run localstack in CI:
